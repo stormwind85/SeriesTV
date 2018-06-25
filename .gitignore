@@ -1,6 +1,6 @@
 .gradle
 .idea
 gradle
-gradlew
+gradlew*
 local.properties
-.iml
+*.iml

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/groupHome">
+        <item android:id="@+id/home"
+            android:icon="@drawable/ic_home"
+            android:title="@string/home">
+
+        </item>
+    </group>
+
+    <group android:id="@+id/groupConnexion">
+        <item android:id="@+id/connexion"
+            android:icon="@drawable/ic_connect"
+            android:title="@string/connexion">
+
+        </item>
+    </group>
+
+    <group android:id="@+id/groupUserInfos">
+        <item android:id="@+id/account"
+            android:icon="@drawable/ic_user"
+            android:title="@string/account">
+
+        </item>
+        <item android:id="@+id/lastUpdates"
+            android:icon="@drawable/ic_flag"
+            android:title="@string/lastUpdates">
+
+        </item>
+        <item android:id="@+id/favorites"
+            android:icon="@drawable/ic_favorites"
+            android:title="@string/favorites">
+
+        </item>
+    </group>
+
+    <group android:id="@+id/groupOthers">
+        <!--<item></item>-->
+    </group>
+
+    <!--<item android:id="@+id/hamburger"-->
+        <!--android:icon="@drawable/ic_hamburger">-->
+        <!---->
+    <!--</item>-->
+</menu>

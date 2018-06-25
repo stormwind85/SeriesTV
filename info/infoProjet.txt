@@ -1,0 +1,12 @@
+A faire :
+- initialiser répot Git
+- réaliser mockups
+
+Infinite Scroll on RecyclerView :
+- https://github.com/pwittchen/InfiniteScroll
+
+API Data Series :
+- https://www.tvmaze.com/api
+Webservices :
+- https://www.tvmaze.com/api#show-search
+- https://www.tvmaze.com/api#show-single-search?q=<name>&embed=episodes|seasons

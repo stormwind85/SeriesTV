@@ -3,6 +3,7 @@ package fr.eni.campus.series.seriestv;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.app.ActionBar;
@@ -47,10 +48,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String API_KEY = "54ec90b87704";
     private static final String API_TOKEN = "Bearer f17e68d82c20";
     private static final int MAX_ITEMS_PER_REQUEST = 3;
-    private static final int TOTAL_LIMIT_SERIES = 5;
     private static final int SIMULATED_LOADING_TIME_IN_MS = 1500;
-    private static ProgressBar progressBar;
+    private static int TOTAL_LIMIT_SERIES = 10;
 
+    private static ProgressBar progressBar;
+    private ProgressBar beginProgressBar;
     private RecyclerView recyclerView;
     private DrawerLayout drawerLayout;
     private LinearLayoutManager layoutManager;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         progressBar = findViewById(R .id.progress_bar);
+        beginProgressBar = findViewById(R.id.begin_progress_bar);
         recyclerView = findViewById(R.id.recyclerView);
 
         enableLeftMenu();
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         series = new LinkedList<>();
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation()));
         recyclerView.setLayoutManager(layoutManager);
 
         // Instantiate the RequestQueue.
@@ -92,36 +96,42 @@ public class MainActivity extends AppCompatActivity {
             (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    Log.i("Volley","Response: " + response.toString());
                     try {
                         JSONArray shows = response.getJSONArray("shows");
                         for(int i = 0; i < shows.length(); ++i) {
-                            Serie currentSerie = new Serie(
-                                shows.getJSONObject(i).getLong("id"),
-                                shows.getJSONObject(i).getString("title"),
-                                shows.getJSONObject(i).getString("status"),
-                                shows.getJSONObject(i).getJSONObject("images").getString("show"),
-                                shows.getJSONObject(i).getInt("creation"), new LinkedList<Saison>());
+                            if(!shows.getJSONObject(i).getString("title").isEmpty() &&
+                                    shows.getJSONObject(i).getInt("seasons") > 0 &&
+                                    shows.getJSONObject(i).getInt("episodes") > 0 &&
+                                    shows.getJSONObject(i).getJSONObject("images").getString("show") != null) {
+                                Serie currentSerie = new Serie(
+                                        shows.getJSONObject(i).getLong("id"),
+                                        shows.getJSONObject(i).getString("title"),
+                                        shows.getJSONObject(i).getString("status"),
+                                        shows.getJSONObject(i).getJSONObject("images").getString("show"),
+                                        shows.getJSONObject(i).getInt("creation"), new LinkedList<Saison>());
 
-                            JSONArray saison_details = shows.getJSONObject(i).getJSONArray("seasons_details");
-                            for(int j = 0; j < saison_details.length(); ++j) {
-                                Saison currentSaison = new Saison(
-                                    saison_details.getJSONObject(j).getInt("number"),
-                                    new LinkedList<Episode>(), currentSerie);
-                                currentSerie.addSaison(currentSaison);
-                            }
-                            series.add(currentSerie);
+                                JSONArray saison_details = shows.getJSONObject(i).getJSONArray("seasons_details");
+                                for(int j = 0; j < saison_details.length(); ++j) {
+                                    Saison currentSaison = new Saison(
+                                            saison_details.getJSONObject(j).getInt("number"),
+                                            new LinkedList<Episode>(), currentSerie);
+                                    currentSerie.addSaison(currentSaison);
+                                }
+                                series.add(currentSerie);
+                            } else
+                                TOTAL_LIMIT_SERIES--;
                         }
                         recyclerView.setAdapter(new SerieAdapter(series.subList(page, MAX_ITEMS_PER_REQUEST)));
                         recyclerView.addOnScrollListener(createInfiniteScrollListener());
+                        beginProgressBar.setVisibility(View.GONE);
                     } catch (JSONException e) {
-                        Log.getStackTraceString(e);
+                        Log.e("JSONException", Log.getStackTraceString(e));
                     }
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.i("Volley","That didn't work!");
+                    Log.e("Volley", error.getMessage());
                 }
             }) {
                 @Override

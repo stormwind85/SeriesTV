@@ -1,13 +1,20 @@
 package fr.eni.campus.series.seriestv;
 
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+
 import android.util.Log;
 import android.view.View;
+import android.view.MenuItem;
 import android.widget.ProgressBar;
+import android.support.design.widget.NavigationView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
@@ -45,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private static ProgressBar progressBar;
 
     private RecyclerView recyclerView;
+    private DrawerLayout drawerLayout;
     private LinearLayoutManager layoutManager;
     private List<Serie> series;
     private int page;
@@ -53,10 +61,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        series = new LinkedList<>();
-
         progressBar = findViewById(R .id.progress_bar);
         recyclerView = findViewById(R.id.recyclerView);
+
+        enableLeftMenu();
+
+        series = new LinkedList<>();
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
@@ -184,5 +194,37 @@ public class MainActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
             }
         }.execute();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void enableLeftMenu(){
+        drawerLayout = findViewById(R.id.leftHamburgerMenu);
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+            new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(MenuItem menuItem) {
+                    // close drawer when item is tapped
+                    drawerLayout.closeDrawers();
+                    return true;
+                }
+            }
+        );
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
     }
 }

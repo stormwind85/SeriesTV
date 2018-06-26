@@ -85,6 +85,23 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R .id.progress_bar);
     }
 
+    private void enableLeftMenu(){
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // close drawer when item is tapped
+                        drawerLayout.closeDrawers();
+                        return true;
+                    }
+                }
+        );
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+    }
+
     private void initRecycler() {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setHasFixedSize(true);
@@ -160,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
                 return headers;
             }
         };
-
         // Access the RequestQueue through your singleton class.
         SingletonRequestAPI.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
@@ -234,22 +250,5 @@ public class MainActivity extends AppCompatActivity {
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setQueryHint(getResources().getString(R.string.searchSerie));
         return true;
-    }
-
-    private void enableLeftMenu(){
-        navigationView.setNavigationItemSelectedListener(
-            new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(MenuItem menuItem) {
-                    // close drawer when item is tapped
-                    drawerLayout.closeDrawers();
-                    return true;
-                }
-            }
-        );
-        setSupportActionBar(toolbar);
-        ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayHomeAsUpEnabled(true);
-        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
     }
 }

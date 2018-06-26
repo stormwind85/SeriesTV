@@ -5,4 +5,5 @@
     <string name="favorites">Mes favoris</string>
     <string name="lastUpdates">Mes dernières séries</string>
     <string name="home">Accueil</string>
+    <string name="searchSerie">Rechercher une série</string>
 </resources>

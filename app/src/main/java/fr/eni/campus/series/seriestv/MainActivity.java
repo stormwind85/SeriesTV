@@ -54,47 +54,60 @@ public class MainActivity extends AppCompatActivity {
     private static final int SIMULATED_LOADING_TIME_IN_MS = 1500;
     private static int TOTAL_LIMIT_SERIES = 10;
 
-    private static ProgressBar progressBar;
+    private DrawerLayout drawerLayout;
+    private Toolbar toolbar;
+    private NavigationView navigationView;
     private ProgressBar beginProgressBar;
     private RecyclerView recyclerView;
-    private DrawerLayout drawerLayout;
+    private static ProgressBar progressBar;
     private LinearLayoutManager layoutManager;
+
     private List<Serie> series;
     private int page;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        progressBar = findViewById(R .id.progress_bar);
-        beginProgressBar = findViewById(R.id.begin_progress_bar);
-        recyclerView = findViewById(R.id.recyclerView);
-
+        initLayout();
         enableLeftMenu();
+        initRecycler();
+        initQueue();
+        startRequestToAPI();
+    }
 
-        series = new LinkedList<>();
+    private void initLayout() {
+        setContentView(R.layout.activity_main);
+        beginProgressBar = findViewById(R.id.begin_progress_bar);
+        drawerLayout = findViewById(R.id.leftHamburgerMenu);
+        toolbar = findViewById(R.id.toolbar);
+        navigationView = findViewById(R.id.nav_view);
+        recyclerView = findViewById(R.id.recyclerView);
+        progressBar = findViewById(R .id.progress_bar);
+    }
+
+    private void initRecycler() {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation()));
         recyclerView.setLayoutManager(layoutManager);
+    }
 
+    private void initQueue() {
         // Instantiate the RequestQueue.
         RequestQueue mRequestQueue;
-
         // Instantiate the cache
         Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
-
         // Set up the network to use HttpURLConnection as the HTTP client.
         Network network = new BasicNetwork(new HurlStack());
-
         // Instantiate the RequestQueue with the cache and network.
         mRequestQueue = new RequestQueue(cache, network);
-
         // Start the queue
         mRequestQueue.start();
+    }
 
+    private void startRequestToAPI() {
         String url = ENDPOINT + "/shows/list?limit=" + TOTAL_LIMIT_SERIES;
-
+        series = new LinkedList<>();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
             (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                 @Override
@@ -128,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                         recyclerView.addOnScrollListener(createInfiniteScrollListener());
                         beginProgressBar.setVisibility(View.GONE);
                     } catch (JSONException e) {
-                        Log.e("JSONException", Log.getStackTraceString(e));
+                        Log.e("JSONException", e.getMessage());
                     }
                 }
             }, new Response.ErrorListener() {
@@ -137,15 +150,15 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("Volley", error.getMessage());
                 }
             }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Accept", "application/json");
-                    headers.put("X-BetaSeries-Key", API_KEY);
-                    headers.put("Authorization", API_TOKEN);
-                    headers.put("X-BetaSeries-Version", "3.0");
-                    return headers;
-                }
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Accept", "application/json");
+                headers.put("X-BetaSeries-Key", API_KEY);
+                headers.put("Authorization", API_TOKEN);
+                headers.put("X-BetaSeries-Version", "3.0");
+                return headers;
+            }
         };
 
         // Access the RequestQueue through your singleton class.
@@ -155,11 +168,6 @@ public class MainActivity extends AppCompatActivity {
     private InfiniteScrollListener createInfiniteScrollListener() {
         return new InfiniteScrollListener(MAX_ITEMS_PER_REQUEST, layoutManager) {
             @Override public void onScrolledToEnd(final int firstVisibleItemPosition) {
-                // load your items here
-                // logic of loading items will be different depending on your specific use case
-
-                // when new items are loaded, combine old and new items, pass them to your adapter
-                // and call refreshView(...) method from InfiniteScrollListener class to refresh RecyclerView
                 simulateLoading();
                 int start = ++page * MAX_ITEMS_PER_REQUEST;
                 final boolean allItemsLoaded = start >= series.size();
@@ -193,16 +201,14 @@ public class MainActivity extends AppCompatActivity {
             @Override protected void onPreExecute() {
                 progressBar.setVisibility(View.VISIBLE);
             }
-
             @Override protected Void doInBackground(Void... params) {
                 try {
                     Thread.sleep(SIMULATED_LOADING_TIME_IN_MS);
                 } catch (InterruptedException e) {
-                    Log.e("MainActivity", e.getMessage());
+                    Log.e("simulateLoading", e.getMessage());
                 }
                 return null;
             }
-
             @Override protected void onPostExecute(Void param) {
                 progressBar.setVisibility(View.GONE);
             }
@@ -231,9 +237,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void enableLeftMenu(){
-        drawerLayout = findViewById(R.id.leftHamburgerMenu);
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
             new NavigationView.OnNavigationItemSelectedListener() {
                 @Override
@@ -244,8 +247,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         );
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);

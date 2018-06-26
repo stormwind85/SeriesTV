@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String API_TOKEN = "Bearer f17e68d82c20";
     private static final int MAX_ITEMS_PER_REQUEST = 3;
     private static final int SIMULATED_LOADING_TIME_IN_MS = 1500;
-    private static int TOTAL_LIMIT_SERIES = 10;
+    private static int TOTAL_LIMIT_SERIES = 9;
 
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startRequestToAPI() {
-        String url = ENDPOINT + "/shows/list?limit=" + TOTAL_LIMIT_SERIES;
+        String url = ENDPOINT + "/shows/list?order=followers&limit=" + TOTAL_LIMIT_SERIES;
         series = new LinkedList<>();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
             (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                                         shows.getJSONObject(i).getLong("id"),
                                         shows.getJSONObject(i).getString("title"),
                                         shows.getJSONObject(i).getString("status"),
-                                        shows.getJSONObject(i).getJSONObject("images").getString("show"),
+                                        shows.getJSONObject(i).getJSONObject("images").getString("box"),
                                         shows.getJSONObject(i).getInt("creation"), new LinkedList<Saison>());
 
                                 JSONArray saison_details = shows.getJSONObject(i).getJSONArray("seasons_details");

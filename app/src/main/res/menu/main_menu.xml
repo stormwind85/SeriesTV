@@ -34,12 +34,7 @@
         </item>
     </group>
 
-    <group android:id="@+id/groupOthers">
+    <!--<group android:id="@+id/groupOthers">-->
         <!--<item></item>-->
-    </group>
-
-    <!--<item android:id="@+id/hamburger"-->
-        <!--android:icon="@drawable/ic_hamburger">-->
-        <!---->
-    <!--</item>-->
+    <!--</group>-->
 </menu>

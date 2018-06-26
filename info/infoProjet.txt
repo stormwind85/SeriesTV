@@ -10,3 +10,7 @@ API Data Series :
 Webservices :
 - https://www.tvmaze.com/api#show-search
 - https://www.tvmaze.com/api#show-single-search?q=<name>&embed=episodes|seasons
+
+- https://www.betaseries.com/compte/api/
+	Clé : 54ec90b87704
+	Clé Oauth : 8e0ee955ab9e70d9e3331f72a8c8224d

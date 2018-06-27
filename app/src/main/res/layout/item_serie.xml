@@ -6,13 +6,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/item_text"
-        android:textAlignment="center"
+    <ImageView
+        android:id="@+id/img_serie"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/info_serie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        app:layout_constraintTop_toBottomOf="@id/img_serie"
+        app:layout_constraintLeft_toLeftOf="@id/img_serie"
+        app:layout_constraintRight_toRightOf="@id/img_serie" />
 
 </android.support.constraint.ConstraintLayout>

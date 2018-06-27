@@ -48,6 +48,7 @@ public class Saison implements Serializable {
         return "Saison{" +
                 "number=" + number +
                 ", episodes=" + episodes.toString() +
+                ", serie=" + serie.getTitle() +
                 '}';
     }
 }

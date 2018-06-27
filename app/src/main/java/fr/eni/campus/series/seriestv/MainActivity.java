@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.app.ActionBar;
@@ -52,95 +53,138 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String API_KEY = "54ec90b87704";
     private static final String API_TOKEN = "Bearer f17e68d82c20";
     private static final int MAX_ITEMS_PER_REQUEST = 3;
-    private static final int TOTAL_LIMIT_SERIES = 5;
     private static final int SIMULATED_LOADING_TIME_IN_MS = 1500;
-    private static ProgressBar progressBar;
+    private static int TOTAL_LIMIT_SERIES = 10;
 
-    private RecyclerView recyclerView;
     private DrawerLayout drawerLayout;
+    private Toolbar toolbar;
+    private NavigationView navigationView;
+    private ProgressBar beginProgressBar;
+    private RecyclerView recyclerView;
+    private static ProgressBar progressBar;
     private LinearLayoutManager layoutManager;
+
     private List<Serie> series;
     private int page;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        progressBar = findViewById(R .id.progress_bar);
-        recyclerView = findViewById(R.id.recyclerView);
-
+        initLayout();
         enableLeftMenu();
         setNavigationViewListener();
+        initRecycler();
+        initQueue();
+        startRequestToAPI();
+    }
 
-        series = new LinkedList<>();
+    private void initLayout() {
+        setContentView(R.layout.activity_main);
+        beginProgressBar = findViewById(R.id.begin_progress_bar);
+        drawerLayout = findViewById(R.id.leftHamburgerMenu);
+        toolbar = findViewById(R.id.toolbar);
+        navigationView = findViewById(R.id.nav_view);
+        recyclerView = findViewById(R.id.recyclerView);
+        progressBar = findViewById(R .id.progress_bar);
+    }
+
+    private void enableLeftMenu(){
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // close drawer when item is tapped
+                        drawerLayout.closeDrawers();
+                        return true;
+                    }
+                }
+        );
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+    }
+
+    private void setNavigationViewListener() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void initRecycler() {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation()));
         recyclerView.setLayoutManager(layoutManager);
+    }
 
+    private void initQueue() {
         // Instantiate the RequestQueue.
         RequestQueue mRequestQueue;
-
         // Instantiate the cache
         Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
-
         // Set up the network to use HttpURLConnection as the HTTP client.
         Network network = new BasicNetwork(new HurlStack());
-
         // Instantiate the RequestQueue with the cache and network.
         mRequestQueue = new RequestQueue(cache, network);
-
         // Start the queue
         mRequestQueue.start();
+    }
 
+    private void startRequestToAPI() {
         String url = ENDPOINT + "/shows/list?limit=" + TOTAL_LIMIT_SERIES;
-
+        series = new LinkedList<>();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
             (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    Log.i("Volley","Response: " + response.toString());
                     try {
                         JSONArray shows = response.getJSONArray("shows");
                         for(int i = 0; i < shows.length(); ++i) {
-                            Serie currentSerie = new Serie(
-                                shows.getJSONObject(i).getLong("id"),
-                                shows.getJSONObject(i).getString("title"),
-                                shows.getJSONObject(i).getString("status"),
-                                shows.getJSONObject(i).getJSONObject("images").getString("show"),
-                                shows.getJSONObject(i).getInt("creation"), new LinkedList<Saison>());
+                            if(!shows.getJSONObject(i).getString("title").isEmpty() &&
+                                    shows.getJSONObject(i).getInt("seasons") > 0 &&
+                                    shows.getJSONObject(i).getInt("episodes") > 0 &&
+                                    shows.getJSONObject(i).getJSONObject("images").getString("show") != null) {
+                                Serie currentSerie = new Serie(
+                                        shows.getJSONObject(i).getLong("id"),
+                                        shows.getJSONObject(i).getString("title"),
+                                        shows.getJSONObject(i).getString("status"),
+                                        shows.getJSONObject(i).getJSONObject("images").getString("show"),
+                                        shows.getJSONObject(i).getInt("creation"), new LinkedList<Saison>());
 
-                            JSONArray saison_details = shows.getJSONObject(i).getJSONArray("seasons_details");
-                            for(int j = 0; j < saison_details.length(); ++j) {
-                                Saison currentSaison = new Saison(
-                                    saison_details.getJSONObject(j).getInt("number"),
-                                    new LinkedList<Episode>(), currentSerie);
-                                currentSerie.addSaison(currentSaison);
-                            }
-                            series.add(currentSerie);
+                                JSONArray saison_details = shows.getJSONObject(i).getJSONArray("seasons_details");
+                                for(int j = 0; j < saison_details.length(); ++j) {
+                                    Saison currentSaison = new Saison(
+                                            saison_details.getJSONObject(j).getInt("number"),
+                                            new LinkedList<Episode>(), currentSerie);
+                                    currentSerie.addSaison(currentSaison);
+                                }
+                                series.add(currentSerie);
+                            } else
+                                TOTAL_LIMIT_SERIES--;
                         }
                         recyclerView.setAdapter(new SerieAdapter(series.subList(page, MAX_ITEMS_PER_REQUEST)));
                         recyclerView.addOnScrollListener(createInfiniteScrollListener());
+                        beginProgressBar.setVisibility(View.GONE);
                     } catch (JSONException e) {
-                        Log.getStackTraceString(e);
+                        Log.e("JSONException", e.getMessage());
                     }
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.i("Volley","That didn't work!");
+                    Log.e("Volley", error.getMessage());
                 }
             }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Accept", "application/json");
-                    headers.put("X-BetaSeries-Key", API_KEY);
-                    headers.put("Authorization", API_TOKEN);
-                    headers.put("X-BetaSeries-Version", "3.0");
-                    return headers;
-                }
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Accept", "application/json");
+                headers.put("X-BetaSeries-Key", API_KEY);
+                headers.put("Authorization", API_TOKEN);
+                headers.put("X-BetaSeries-Version", "3.0");
+                return headers;
+            }
         };
-
         // Access the RequestQueue through your singleton class.
         SingletonRequestAPI.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
@@ -148,11 +192,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private InfiniteScrollListener createInfiniteScrollListener() {
         return new InfiniteScrollListener(MAX_ITEMS_PER_REQUEST, layoutManager) {
             @Override public void onScrolledToEnd(final int firstVisibleItemPosition) {
-                // load your items here
-                // logic of loading items will be different depending on your specific use case
-
-                // when new items are loaded, combine old and new items, pass them to your adapter
-                // and call refreshView(...) method from InfiniteScrollListener class to refresh RecyclerView
                 simulateLoading();
                 int start = ++page * MAX_ITEMS_PER_REQUEST;
                 final boolean allItemsLoaded = start >= series.size();
@@ -186,16 +225,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override protected void onPreExecute() {
                 progressBar.setVisibility(View.VISIBLE);
             }
-
             @Override protected Void doInBackground(Void... params) {
                 try {
                     Thread.sleep(SIMULATED_LOADING_TIME_IN_MS);
                 } catch (InterruptedException e) {
-                    Log.e("MainActivity", e.getMessage());
+                    Log.e("simulateLoading", e.getMessage());
                 }
                 return null;
             }
-
             @Override protected void onPostExecute(Void param) {
                 progressBar.setVisibility(View.GONE);
             }
@@ -259,33 +296,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setQueryHint(getResources().getString(R.string.searchSerie));
         return true;
-    }
-
-    private void enableLeftMenu(){
-        drawerLayout = findViewById(R.id.leftHamburgerMenu);
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(
-            new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(MenuItem menuItem) {
-                    // close drawer when item is tapped
-                    drawerLayout.closeDrawers();
-                    return true;
-                }
-            }
-        );
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayHomeAsUpEnabled(true);
-        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
-    }
-
-    private void setNavigationViewListener() {
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
     }
 }

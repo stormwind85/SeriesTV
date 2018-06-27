@@ -57,6 +57,7 @@ public class Episode implements Serializable {
                 "number=" + number +
                 ", title='" + title + '\'' +
                 ", sortieDate=" + sortieDate +
+                ", saison=" + saison.getSerie().getTitle() + " - " + saison.getNumber() +
                 '}';
     }
 }

@@ -91,15 +91,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void enableLeftMenu(){
         navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        // close drawer when item is tapped
-                        drawerLayout.closeDrawers();
-                        return true;
-                    }
+            new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(MenuItem menuItem) {
+                    // close drawer when item is tapped
+                    drawerLayout.closeDrawers();
+                    return true;
                 }
+            }
         );
+        navigationView.setCheckedItem(R.id.home2);
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
@@ -267,8 +268,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Class activityClass = null;
 
         switch (itemId){
-            case R.id.home:
-                activityClass = MainActivity.class;
+            case R.id.home2:
+                activityClass = this.getClass();
                 break;
             case R.id.connexion:
                 break;
@@ -287,17 +288,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             default: return false;
         }
 
-        if(activityClass != null && !this.equals(activityClass)) {
+        if(activityClass != null && !this.equals(activityClass))
             if (intent != null)
                 startActivity(intent);
-            else
-                drawerLayout.closeDrawer(GravityCompat.START);
-            return true;
-        }
-        else {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return false;
-        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     @Override
@@ -309,5 +305,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setQueryHint(getResources().getString(R.string.searchSerie));
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+        else {
+            super.onBackPressed();
+        }
     }
 }

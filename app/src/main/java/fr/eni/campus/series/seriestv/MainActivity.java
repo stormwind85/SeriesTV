@@ -1,8 +1,10 @@
 package fr.eni.campus.series.seriestv;
 
 import android.app.SearchManager;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -45,7 +47,7 @@ import fr.eni.campus.series.seriestv.model.Episode;
 import fr.eni.campus.series.seriestv.model.Saison;
 import fr.eni.campus.series.seriestv.model.Serie;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String ENDPOINT = "https://api.betaseries.com";
     private static final String API_KEY = "54ec90b87704";
     private static final String API_TOKEN = "Bearer f17e68d82c20";
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
 
         enableLeftMenu();
+        setNavigationViewListener();
 
         series = new LinkedList<>();
         layoutManager = new LinearLayoutManager(this);
@@ -210,6 +213,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        Intent intent = null;
+        Class activityClass = null;
+
+        switch (itemId){
+            case R.id.home:
+                activityClass = MainActivity.class;
+                break;
+            case R.id.connexion:
+                break;
+            case R.id.account:
+                activityClass = AccountActivity.class;
+                intent = new Intent(this,AccountActivity.class);
+                break;
+            case R.id.lastUpdates:
+                activityClass = LastUpdatesActivity.class;
+                intent = new Intent(this,LastUpdatesActivity.class);
+                break;
+            case R.id.favorites:
+                activityClass = FavoritesActivity.class;
+                intent = new Intent(this, FavoritesActivity.class);
+                break;
+            default: return false;
+        }
+
+        if(activityClass != null && !this.equals(activityClass)) {
+            if (intent != null)
+                startActivity(intent);
+            else
+                drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        }
+        else {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return false;
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search_menu, menu);
         // Retrieve the SearchView and plug it into SearchManager
@@ -239,5 +282,10 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+    }
+
+    private void setNavigationViewListener() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 }

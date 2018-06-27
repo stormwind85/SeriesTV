@@ -11,7 +11,8 @@
     <group android:id="@+id/groupConnexion">
         <item android:id="@+id/connexion"
             android:icon="@drawable/ic_connect"
-            android:title="@string/connexion">
+            android:title="@string/connexion"
+            >
 
         </item>
     </group>

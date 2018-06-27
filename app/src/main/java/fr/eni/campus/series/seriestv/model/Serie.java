@@ -7,7 +7,7 @@ import java.util.List;
 public class Serie implements Serializable {
     private Long id;
     private String title;
-    private String status;
+    private Status status;
     private String imageUrl;
     private Integer creationDate;
     private List<Saison> saisons;
@@ -16,7 +16,7 @@ public class Serie implements Serializable {
         saisons = new LinkedList<>();
     }
 
-    public Serie(Long id, String title, String status, String imageUrl, Integer creationDate, List<Saison> saisons) {
+    public Serie(Long id, String title, Status status, String imageUrl, Integer creationDate, List<Saison> saisons) {
         this.id = id;
         this.title = title;
         this.status = status;
@@ -33,7 +33,7 @@ public class Serie implements Serializable {
         this.title = title;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -57,7 +57,7 @@ public class Serie implements Serializable {
         return title;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
@@ -82,7 +82,7 @@ public class Serie implements Serializable {
         return "Serie{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", status='" + status + '\'' +
+                ", status='" + status.toString() + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", creationDate=" + creationDate +
                 ", saisons=" + saisons.toString() +

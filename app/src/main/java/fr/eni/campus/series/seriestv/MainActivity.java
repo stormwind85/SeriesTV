@@ -47,14 +47,15 @@ import java.util.Map;
 import fr.eni.campus.series.seriestv.model.Episode;
 import fr.eni.campus.series.seriestv.model.Saison;
 import fr.eni.campus.series.seriestv.model.Serie;
+import fr.eni.campus.series.seriestv.model.Status;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String ENDPOINT = "https://api.betaseries.com";
     private static final String API_KEY = "54ec90b87704";
     private static final String API_TOKEN = "Bearer f17e68d82c20";
-    private static final int MAX_ITEMS_PER_REQUEST = 3;
+    private static final int MAX_ITEMS_PER_REQUEST = 2;
     private static final int SIMULATED_LOADING_TIME_IN_MS = 1500;
-    private static int TOTAL_LIMIT_SERIES = 9;
+    private static int TOTAL_LIMIT_SERIES = 100;
 
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
@@ -80,10 +81,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initLayout() {
         setContentView(R.layout.activity_main);
-        beginProgressBar = findViewById(R.id.begin_progress_bar);
         drawerLayout = findViewById(R.id.leftHamburgerMenu);
         toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.nav_view);
+        beginProgressBar = findViewById(R.id.begin_progress_bar);
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R .id.progress_bar);
     }
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 Serie currentSerie = new Serie(
                                         shows.getJSONObject(i).getLong("id"),
                                         shows.getJSONObject(i).getString("title"),
-                                        shows.getJSONObject(i).getString("status"),
+                                        Status.valueOf(shows.getJSONObject(i).getString("status").toUpperCase()),
                                         shows.getJSONObject(i).getJSONObject("images").getString("box"),
                                         shows.getJSONObject(i).getInt("creation"), new LinkedList<Saison>());
 
@@ -162,9 +163,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             } else
                                 TOTAL_LIMIT_SERIES--;
                         }
-                        recyclerView.setAdapter(new SerieAdapter(series.subList(page, MAX_ITEMS_PER_REQUEST)));
+                        recyclerView.setAdapter(new SerieAdapter(series.subList(page, MAX_ITEMS_PER_REQUEST), beginProgressBar));
                         recyclerView.addOnScrollListener(createInfiniteScrollListener());
-                        beginProgressBar.setVisibility(View.GONE);
+                        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                            @Override
+                            public void onScrolled(RecyclerView rv, int dx, int dy) {
+                                super.onScrolled(rv, dx, dy);
+                                Log.i("scrollProgress", "Visibility : " + progressBar.getVisibility());
+                                if(progressBar.getVisibility() == View.VISIBLE)
+                                    rv.setNestedScrollingEnabled(false);
+                                else
+                                    rv.setNestedScrollingEnabled(true);
+                            }
+                        });
                     } catch (JSONException e) {
                         Log.e("JSONException", e.getMessage());
                     }
@@ -203,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if(start + MAX_ITEMS_PER_REQUEST <= TOTAL_LIMIT_SERIES)
                         end = start + MAX_ITEMS_PER_REQUEST;
                     final List<Serie> itemsLocal = getItemsToBeLoaded(start, end);
-                    refreshView(recyclerView, new SerieAdapter(itemsLocal), firstVisibleItemPosition);
+                    refreshView(recyclerView, new SerieAdapter(itemsLocal, beginProgressBar), firstVisibleItemPosition);
                 }
             }
         };

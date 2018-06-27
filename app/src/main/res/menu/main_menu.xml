@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/groupHome">
-        <item android:id="@+id/home"
+    <group android:id="@+id/groupHome"
+        android:checkableBehavior="single">
+        <item android:id="@+id/home2"
             android:icon="@drawable/ic_home"
             android:title="@string/home">
 
         </item>
     </group>
 
-    <group android:id="@+id/groupConnexion">
+    <group android:id="@+id/groupConnexion"
+        android:checkableBehavior="single">
         <item android:id="@+id/connexion"
             android:icon="@drawable/ic_connect"
-            android:title="@string/connexion"
-            >
+            android:title="@string/connexion">
 
         </item>
     </group>
 
-    <group android:id="@+id/groupUserInfos">
+    <group android:id="@+id/groupUserInfos"
+        android:checkableBehavior="single">
         <item android:id="@+id/account"
             android:icon="@drawable/ic_user"
             android:title="@string/account">

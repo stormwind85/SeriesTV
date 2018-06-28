@@ -43,6 +43,10 @@ public class Saison implements Serializable {
         this.serie = serie;
     }
 
+    public void addEpisode(Episode episode) {
+        episodes.add(episode);
+    }
+
     @Override
     public String toString() {
         return "Saison{" +

@@ -12,4 +12,8 @@
 
     <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="RatingAndProgressBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorControlNormal">@color/colorProgressAndRating</item>
+        <item name="colorControlActivated">@color/colorProgressAndRating</item>
+    </style>
 </resources>

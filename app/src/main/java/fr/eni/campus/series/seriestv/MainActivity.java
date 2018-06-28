@@ -2,7 +2,6 @@ package fr.eni.campus.series.seriestv;
 
 import android.app.SearchManager;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +16,6 @@ import android.support.v4.widget.DrawerLayout;
 
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.support.design.widget.NavigationView;
@@ -33,7 +31,6 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,20 +50,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String ENDPOINT = "https://api.betaseries.com";
     private static final String API_KEY = "54ec90b87704";
     private static final String API_TOKEN = "Bearer f17e68d82c20";
-    private static final int MAX_ITEMS_PER_REQUEST = 2;
-    private static final int SIMULATED_LOADING_TIME_IN_MS = 1500;
     private static int TOTAL_LIMIT_SERIES = 100;
 
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private NavigationView navigationView;
-    private ProgressBar beginProgressBar;
+    private ProgressBar progressBar;
     private RecyclerView recyclerView;
-    private static ProgressBar progressBar;
     private LinearLayoutManager layoutManager;
 
     private List<Serie> series;
-    private int page;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +77,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout = findViewById(R.id.leftHamburgerMenu);
         toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.nav_view);
-        beginProgressBar = findViewById(R.id.begin_progress_bar);
+        progressBar = findViewById(R.id.begin_progress_bar);
         recyclerView = findViewById(R.id.recyclerView);
-        progressBar = findViewById(R .id.progress_bar);
     }
 
     private void enableLeftMenu(){
@@ -150,33 +142,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         shows.getJSONObject(i).getLong("id"),
                                         shows.getJSONObject(i).getString("title"),
                                         Status.valueOf(shows.getJSONObject(i).getString("status").toUpperCase()),
+                                        shows.getJSONObject(i).getJSONObject("notes").getDouble("mean"),
                                         shows.getJSONObject(i).getJSONObject("images").getString("box"),
                                         shows.getJSONObject(i).getInt("creation"), new LinkedList<Saison>());
 
                                 JSONArray saison_details = shows.getJSONObject(i).getJSONArray("seasons_details");
                                 for(int j = 0; j < saison_details.length(); ++j) {
+                                    int nbEpisode = saison_details.getJSONObject(j).getInt("episodes");
                                     Saison currentSaison = new Saison(
                                             saison_details.getJSONObject(j).getInt("number"),
                                             new LinkedList<Episode>(), currentSerie);
+                                    for(int k = 0; k < nbEpisode; k++) {
+                                        currentSaison.addEpisode(new Episode());
+                                    }
                                     currentSerie.addSaison(currentSaison);
                                 }
                                 series.add(currentSerie);
                             } else
                                 TOTAL_LIMIT_SERIES--;
                         }
-                        recyclerView.setAdapter(new SerieAdapter(series.subList(page, MAX_ITEMS_PER_REQUEST), beginProgressBar));
-                        recyclerView.addOnScrollListener(createInfiniteScrollListener());
-                        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                            @Override
-                            public void onScrolled(RecyclerView rv, int dx, int dy) {
-                                super.onScrolled(rv, dx, dy);
-                                Log.i("scrollProgress", "Visibility : " + progressBar.getVisibility());
-                                if(progressBar.getVisibility() == View.VISIBLE)
-                                    rv.setNestedScrollingEnabled(false);
-                                else
-                                    rv.setNestedScrollingEnabled(true);
-                            }
-                        });
+                        recyclerView.setAdapter(new SerieAdapter(series, progressBar));
                     } catch (JSONException e) {
                         Log.e("JSONException", e.getMessage());
                     }
@@ -199,56 +184,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
         // Access the RequestQueue through your singleton class.
         SingletonRequestAPI.getInstance(this).addToRequestQueue(jsonObjectRequest);
-    }
-
-    private InfiniteScrollListener createInfiniteScrollListener() {
-        return new InfiniteScrollListener(MAX_ITEMS_PER_REQUEST, layoutManager) {
-            @Override public void onScrolledToEnd(final int firstVisibleItemPosition) {
-                simulateLoading();
-                int start = ++page * MAX_ITEMS_PER_REQUEST;
-                final boolean allItemsLoaded = start >= series.size();
-                if (allItemsLoaded) {
-                    progressBar.setVisibility(View.GONE);
-                }
-                else {
-                    int end = TOTAL_LIMIT_SERIES;
-                    if(start + MAX_ITEMS_PER_REQUEST <= TOTAL_LIMIT_SERIES)
-                        end = start + MAX_ITEMS_PER_REQUEST;
-                    final List<Serie> itemsLocal = getItemsToBeLoaded(start, end);
-                    refreshView(recyclerView, new SerieAdapter(itemsLocal, beginProgressBar), firstVisibleItemPosition);
-                }
-            }
-        };
-    }
-
-    private List<Serie> getItemsToBeLoaded(int start, int end) {
-        List<Serie> newItems = series.subList(start, end);
-        final List<Serie> oldItems = ((SerieAdapter) recyclerView.getAdapter()).getItems();
-        final List<Serie> itemsLocal = new LinkedList<>();
-        Log.i("getItemsToBeLoaded", "oldItems : " + oldItems.size());
-        Log.i("getItemsToBeLoaded", "newItems : " + newItems.size());
-        itemsLocal.addAll(oldItems);
-        itemsLocal.addAll(newItems);
-        return itemsLocal;
-    }
-
-    private static void simulateLoading() {
-         new AsyncTask<Void, Void, Void>() {
-            @Override protected void onPreExecute() {
-                progressBar.setVisibility(View.VISIBLE);
-            }
-            @Override protected Void doInBackground(Void... params) {
-                try {
-                    Thread.sleep(SIMULATED_LOADING_TIME_IN_MS);
-                } catch (InterruptedException e) {
-                    Log.e("simulateLoading", e.getMessage());
-                }
-                return null;
-            }
-            @Override protected void onPostExecute(Void param) {
-                progressBar.setVisibility(View.GONE);
-            }
-        }.execute();
     }
 
     @Override

@@ -8,6 +8,7 @@ public class Serie implements Serializable {
     private Long id;
     private String title;
     private Status status;
+    private Double note;
     private String imageUrl;
     private Integer creationDate;
     private List<Saison> saisons;
@@ -16,10 +17,11 @@ public class Serie implements Serializable {
         saisons = new LinkedList<>();
     }
 
-    public Serie(Long id, String title, Status status, String imageUrl, Integer creationDate, List<Saison> saisons) {
+    public Serie(Long id, String title, Status status, Double note, String imageUrl, Integer creationDate, List<Saison> saisons) {
         this.id = id;
         this.title = title;
         this.status = status;
+        this.note = note;
         this.imageUrl = imageUrl;
         this.creationDate = creationDate;
         this.saisons = saisons;
@@ -35,6 +37,10 @@ public class Serie implements Serializable {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public void setNote(Double note) {
+        this.note = note;
     }
 
     public void setImageUrl(String imageUrl) {
@@ -61,6 +67,10 @@ public class Serie implements Serializable {
         return status;
     }
 
+    public Double getNote() {
+        return note;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
@@ -83,6 +93,7 @@ public class Serie implements Serializable {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", status='" + status.toString() + '\'' +
+                ", note='" + note.toString() + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", creationDate=" + creationDate +
                 ", saisons=" + saisons.toString() +

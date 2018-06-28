@@ -47,11 +47,9 @@ import java.util.Map;
 import fr.eni.campus.series.seriestv.model.Episode;
 import fr.eni.campus.series.seriestv.model.Saison;
 import fr.eni.campus.series.seriestv.model.Serie;
+import fr.eni.campus.series.seriestv.util.Constantes;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private static final String ENDPOINT = "https://api.betaseries.com";
-    private static final String API_KEY = "54ec90b87704";
-    private static final String API_TOKEN = "Bearer f17e68d82c20";
     private static final int MAX_ITEMS_PER_REQUEST = 3;
     private static final int SIMULATED_LOADING_TIME_IN_MS = 1500;
     private static int TOTAL_LIMIT_SERIES = 9;
@@ -132,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void startRequestToAPI() {
-        String url = ENDPOINT + "/shows/list?order=followers&limit=" + TOTAL_LIMIT_SERIES;
+        String url = Constantes.ENDPOINT + "/shows/list?order=followers&limit=" + TOTAL_LIMIT_SERIES;
         series = new LinkedList<>();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
             (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -180,8 +178,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Accept", "application/json");
-                headers.put("X-BetaSeries-Key", API_KEY);
-                headers.put("Authorization", API_TOKEN);
+                headers.put("X-BetaSeries-Key", Constantes.API_KEY);
+                headers.put("Authorization", Constantes.API_TOKEN);
                 headers.put("X-BetaSeries-Version", "3.0");
                 return headers;
             }

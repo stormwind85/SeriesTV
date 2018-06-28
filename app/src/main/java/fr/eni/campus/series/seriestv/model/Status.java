@@ -13,4 +13,13 @@ public enum Status {
     public String toString() {
         return name;
     }
+
+    public static boolean contains(String test) {
+        for (Status status : Status.values()) {
+            if (status.name().equals(test)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

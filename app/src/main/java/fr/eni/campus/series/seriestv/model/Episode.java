@@ -53,11 +53,14 @@ public class Episode implements Serializable {
 
     @Override
     public String toString() {
-        return "Episode{" +
-                "number=" + number +
-                ", title='" + title + '\'' +
-                ", sortieDate=" + sortieDate +
-                ", saison=" + saison.getSerie().getTitle() + " - " + saison.getNumber() +
-                '}';
+        if(number != null) {
+            return "Episode{" +
+                    "number=" + number +
+                    ", title='" + title + '\'' +
+                    ", sortieDate=" + sortieDate +
+                    ", saison=" + saison.getSerie().getTitle() + " - " + saison.getNumber() +
+                    '}';
+        }
+        return "Pas de détails d'épisode";
     }
 }

@@ -21,7 +21,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/rating_serie"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/img_serie"
+        app:layout_constraintStart_toStartOf="@id/img_serie"
         app:layout_constraintTop_toBottomOf="@id/img_serie" />
 
     <RatingBar
@@ -34,18 +34,18 @@
         android:numStars="5"
         android:stepSize="0.1"
         android:rating="1.5"
-        app:layout_constraintBottom_toBottomOf="@+id/title_serie"
-        app:layout_constraintEnd_toEndOf="@+id/img_serie"
+        app:layout_constraintBottom_toBottomOf="@id/title_serie"
+        app:layout_constraintEnd_toEndOf="@id/img_serie"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/title_serie"
-        app:layout_constraintTop_toTopOf="@+id/title_serie"
+        app:layout_constraintStart_toEndOf="@id/title_serie"
+        app:layout_constraintTop_toTopOf="@id/title_serie"
         app:layout_constraintVertical_bias="0.5" />
 
     <TextView
         android:id="@+id/info_serie"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
+        android:paddingBottom="5dp"
         android:gravity="center"
         app:layout_constraintLeft_toLeftOf="@id/title_serie"
         app:layout_constraintRight_toRightOf="@id/rating_serie"

@@ -49,10 +49,16 @@ public class Saison implements Serializable {
 
     @Override
     public String toString() {
-        return "Saison{" +
-                "number=" + number +
-                ", episodes=" + episodes.toString() +
-                ", serie=" + serie.getTitle() +
-                '}';
+        if(number != null) {
+            String string = "Saison{" +
+                    "number=" + number +
+                    ", serie=" + serie.getTitle();
+            if(episodes.size() > 0) {
+                string += ", episodes=" + episodes.toString();
+            }
+            string += '}';
+            return string;
+        }
+        return "Pas de détails de saison";
     }
 }

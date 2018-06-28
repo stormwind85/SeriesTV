@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/img_episode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/title_episode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="@id/img_episode"
+        app:layout_constraintEnd_toEndOf="@id/img_episode"
+        app:layout_constraintTop_toBottomOf="@id/img_episode" />
+
+    <TextView
+        android:id="@+id/sortie_episode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="10sp"
+        android:textStyle="italic"
+        android:paddingBottom="5dp"
+        app:layout_constraintStart_toStartOf="@id/img_episode"
+        app:layout_constraintEnd_toEndOf="@id/img_episode"
+        app:layout_constraintTop_toBottomOf="@id/title_episode"/>
+
+</android.support.constraint.ConstraintLayout>

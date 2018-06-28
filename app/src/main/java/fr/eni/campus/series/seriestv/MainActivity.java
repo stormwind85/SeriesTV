@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String ENDPOINT = "https://api.betaseries.com";
     private static final String API_KEY = "54ec90b87704";
     private static final String API_TOKEN = "Bearer f17e68d82c20";
-    private static int TOTAL_LIMIT_SERIES = 100;
+    private static final int TOTAL_LIMIT_SERIES = 100;
 
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         JSONArray shows = response.getJSONArray("shows");
                         for(int i = 0; i < shows.length(); ++i) {
                             if(!shows.getJSONObject(i).getString("title").isEmpty() &&
+                                    Status.contains(shows.getJSONObject(i).getString("status").toUpperCase()) &&
                                     shows.getJSONObject(i).getInt("seasons") > 0 &&
                                     shows.getJSONObject(i).getInt("episodes") > 0 &&
                                     shows.getJSONObject(i).getJSONObject("images").getString("show") != null) {
@@ -143,8 +144,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         shows.getJSONObject(i).getString("title"),
                                         Status.valueOf(shows.getJSONObject(i).getString("status").toUpperCase()),
                                         shows.getJSONObject(i).getJSONObject("notes").getDouble("mean"),
-                                        shows.getJSONObject(i).getJSONObject("images").getString("box"),
-                                        shows.getJSONObject(i).getInt("creation"), new LinkedList<Saison>());
+                                        shows.getJSONObject(i).getJSONObject("images").getString("box"), new LinkedList<Saison>());
 
                                 JSONArray saison_details = shows.getJSONObject(i).getJSONArray("seasons_details");
                                 for(int j = 0; j < saison_details.length(); ++j) {
@@ -158,10 +158,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     currentSerie.addSaison(currentSaison);
                                 }
                                 series.add(currentSerie);
-                            } else
-                                TOTAL_LIMIT_SERIES--;
+                            }
                         }
-                        recyclerView.setAdapter(new SerieAdapter(series, progressBar));
+                        recyclerView.setAdapter(new SerieAdapter(series, progressBar, new SerieAdapter.OnClick() {
+                            @Override
+                            public void onItemClickListener(Serie serie) {
+                                Intent intent = new Intent(MainActivity.this, DetailsSerieActivity.class);
+                                intent.putExtra("serie", serie);
+                                startActivity(intent);
+                            }
+                        }));
                     } catch (JSONException e) {
                         Log.e("JSONException", e.getMessage());
                     }
@@ -174,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<>();
                 headers.put("Accept", "application/json");
                 headers.put("X-BetaSeries-Key", API_KEY);
                 headers.put("Authorization", API_TOKEN);
@@ -210,15 +216,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.account:
                 activityClass = AccountActivity.class;
-                intent = new Intent(this,AccountActivity.class);
+                intent = new Intent(this, activityClass);
                 break;
             case R.id.lastUpdates:
                 activityClass = LastUpdatesActivity.class;
-                intent = new Intent(this,LastUpdatesActivity.class);
+                intent = new Intent(this, activityClass);
                 break;
             case R.id.favorites:
                 activityClass = FavoritesActivity.class;
-                intent = new Intent(this, FavoritesActivity.class);
+                intent = new Intent(this, activityClass);
                 break;
             default: return false;
         }

@@ -10,20 +10,18 @@ public class Serie implements Serializable {
     private Status status;
     private Double note;
     private String imageUrl;
-    private Integer creationDate;
     private List<Saison> saisons;
 
     public Serie() {
         saisons = new LinkedList<>();
     }
 
-    public Serie(Long id, String title, Status status, Double note, String imageUrl, Integer creationDate, List<Saison> saisons) {
+    public Serie(Long id, String title, Status status, Double note, String imageUrl, List<Saison> saisons) {
         this.id = id;
         this.title = title;
         this.status = status;
         this.note = note;
         this.imageUrl = imageUrl;
-        this.creationDate = creationDate;
         this.saisons = saisons;
     }
 
@@ -45,10 +43,6 @@ public class Serie implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public void setCreationDate(Integer creationDate) {
-        this.creationDate = creationDate;
     }
 
     public void setSaisons(List<Saison> saisons) {
@@ -75,10 +69,6 @@ public class Serie implements Serializable {
         return imageUrl;
     }
 
-    public Integer getCreationDate() {
-        return creationDate;
-    }
-
     public List<Saison> getSaisons() {
         return saisons;
     }
@@ -89,14 +79,15 @@ public class Serie implements Serializable {
 
     @Override
     public String toString() {
-        return "Serie{" +
+        String string = "Serie{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", status='" + status.toString() + '\'' +
                 ", note='" + note.toString() + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", creationDate=" + creationDate +
-                ", saisons=" + saisons.toString() +
-                '}';
+                ", imageUrl='" + imageUrl + '\'';
+        if(saisons.size() > 0)
+            string += ", saisons=" + saisons.toString();
+        string += '}';
+        return string;
     }
 }

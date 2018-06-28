@@ -24,11 +24,13 @@ class SerieAdapter extends RecyclerView.Adapter<SerieAdapter.SerieHolder> {
 
     private int widthParent;
     private int heightParent;
+    private OnClick listener;
 
 
-    public SerieAdapter(List<Serie> series, View beginProgressBar) {
+    public SerieAdapter(List<Serie> series, View beginProgressBar, OnClick listener) {
         this.series = series;
         this.beginProgressBar = (ProgressBar) beginProgressBar;
+        this.listener = listener;
     }
 
     @Override
@@ -48,7 +50,12 @@ class SerieAdapter extends RecyclerView.Adapter<SerieAdapter.SerieHolder> {
 
     @Override
     public void onBindViewHolder(SerieHolder holder, final int position) {
-        Serie currentSerie = series.get(position);
+        final Serie currentSerie = series.get(position);
+        holder.parent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) { listener.onItemClickListener(currentSerie);
+            }
+        });
         holder.image.getLayoutParams().width = widthParent - 50;
         holder.image.getLayoutParams().height = heightParent;
         holder.image.requestLayout();
@@ -78,22 +85,24 @@ class SerieAdapter extends RecyclerView.Adapter<SerieAdapter.SerieHolder> {
         return series.size();
     }
 
-    public List<Serie> getItems() {
-        return series;
-    }
-
     public class SerieHolder extends RecyclerView.ViewHolder {
         protected ImageView image;
         protected TextView title;
         protected RatingBar rating;
         protected TextView infos;
+        protected View parent;
 
         public SerieHolder(View itemView) {
             super(itemView);
+            parent = itemView;
             image = itemView.findViewById(R.id.img_serie);
             title = itemView.findViewById(R.id.title_serie);
             rating = itemView.findViewById(R.id.rating_serie);
             infos = itemView.findViewById(R.id.info_serie);
         }
+    }
+
+    public interface OnClick {
+        void onItemClickListener(Serie serie);
     }
 }

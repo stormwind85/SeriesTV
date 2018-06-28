@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#888888</color>
     <color name="colorButtons">#fffcb2</color>
+    <color name="colorProgressAndRating">#fff666</color>
 </resources>

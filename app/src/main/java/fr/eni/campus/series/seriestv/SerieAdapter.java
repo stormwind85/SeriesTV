@@ -1,40 +1,44 @@
 package fr.eni.campus.series.seriestv;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import fr.eni.campus.series.seriestv.model.Saison;
 import fr.eni.campus.series.seriestv.model.Serie;
 
 class SerieAdapter extends RecyclerView.Adapter<SerieAdapter.SerieHolder> {
     private List<Serie> series;
-    private Context context;
-    private float density;
+    private ProgressBar beginProgressBar;
+
     private int widthParent;
     private int heightParent;
 
-    public SerieAdapter(List<Serie> series) {
+
+    public SerieAdapter(List<Serie> series, View beginProgressBar) {
         this.series = series;
+        this.beginProgressBar = (ProgressBar) beginProgressBar;
     }
 
     @Override
     public SerieHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        context = parent.getContext();
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_serie, parent, false);
         SerieHolder serieHolder = new SerieHolder(view);
 
-        density = parent.getResources().getDisplayMetrics().density;
+        float density = parent.getResources().getDisplayMetrics().density;
         widthParent = parent.getWidth();
-        if(parent.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+        if(view.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
             heightParent = (int)(150 * density + 0.5f);
         else
             heightParent = (int)(100 * density + 0.5f);
@@ -43,13 +47,30 @@ class SerieAdapter extends RecyclerView.Adapter<SerieAdapter.SerieHolder> {
     }
 
     @Override
-    public void onBindViewHolder(SerieHolder holder, int position) {
+    public void onBindViewHolder(SerieHolder holder, final int position) {
         Serie currentSerie = series.get(position);
-        holder.imageView.getLayoutParams().width = widthParent - 50;
-        holder.imageView.getLayoutParams().height = heightParent;
-        holder.imageView.requestLayout();
-        Picasso.with(context).load(currentSerie.getImageUrl()).fit().centerInside().into(holder.imageView);
-        holder.textView.setText(currentSerie.getTitle() + " - status " + currentSerie.getStatus() + " - " + currentSerie.getSaisons().size() + " saisons");
+        holder.image.getLayoutParams().width = widthParent - 50;
+        holder.image.getLayoutParams().height = heightParent;
+        holder.image.requestLayout();
+        Picasso.get().load(currentSerie.getImageUrl()).fit().centerInside().into(holder.image, new Callback() {
+            @Override
+            public void onSuccess() {
+                beginProgressBar.setVisibility(View.GONE);
+            }
+            @Override
+            public void onError(Exception e) {
+            }
+        });
+        holder.title.setText(currentSerie.getTitle());
+        holder.rating.setRating(currentSerie.getNote().floatValue());
+        int episodes = 0;
+        for(Saison s : currentSerie.getSaisons()) {
+            episodes += s.getEpisodes().size();
+        }
+        holder.infos.setText(currentSerie.getStatus().toString()  + " - " +
+                currentSerie.getSaisons().size() + (currentSerie.getSaisons().size() > 1 ? " saisons" : " saison") + " - " +
+                episodes + (episodes > 1 ? " épisodes" : " épisode")
+        );
     }
 
     @Override
@@ -62,14 +83,17 @@ class SerieAdapter extends RecyclerView.Adapter<SerieAdapter.SerieHolder> {
     }
 
     public class SerieHolder extends RecyclerView.ViewHolder {
-        protected TextView text;
-        protected ImageView imageView;
-        protected TextView textView;
+        protected ImageView image;
+        protected TextView title;
+        protected RatingBar rating;
+        protected TextView infos;
 
         public SerieHolder(View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.img_serie);
-            textView = itemView.findViewById(R.id.info_serie);
+            image = itemView.findViewById(R.id.img_serie);
+            title = itemView.findViewById(R.id.title_serie);
+            rating = itemView.findViewById(R.id.rating_serie);
+            infos = itemView.findViewById(R.id.info_serie);
         }
     }
 }

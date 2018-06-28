@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
     <!-- Use DrawerLayout as root container for activity -->
@@ -30,6 +31,7 @@
                 android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
 
             <ProgressBar
+                android:theme="@style/RatingAndProgressBar"
                 android:id="@+id/begin_progress_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -42,21 +44,9 @@
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="?attr/actionBarSize"
+                android:layout_marginTop="?actionBarSize"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/toolbar"
-                app:layout_constraintBottom_toTopOf="@id/progress_bar"/>
-
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_goneMarginBottom="10dp"
-                android:visibility="gone"
-                android:elevation="2dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/toolbar"/>
 
         </android.support.constraint.ConstraintLayout>
 

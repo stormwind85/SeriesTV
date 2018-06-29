@@ -13,7 +13,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -32,17 +31,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 import fr.eni.campus.series.seriestv.model.Saison;
 import fr.eni.campus.series.seriestv.model.Serie;
+import fr.eni.campus.series.seriestv.util.Constantes;
+import fr.eni.campus.series.seriestv.util.UtilsGlobal;
 
 public class DetailsSerieActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private static final String ENDPOINT = "https://api.betaseries.com";
-    private static final String API_KEY = "54ec90b87704";
-    private static final String API_TOKEN = "Bearer f17e68d82c20";
-
     private Serie serie;
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
@@ -113,7 +109,7 @@ public class DetailsSerieActivity extends AppCompatActivity implements Navigatio
     }
 
     private void getImageForDetails() {
-        String url = ENDPOINT + "/shows/pictures?id=" + serie.getId();
+        String url = Constantes.ENDPOINT + "/shows/pictures?id=" + serie.getId();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
             (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                 @Override
@@ -147,19 +143,14 @@ public class DetailsSerieActivity extends AppCompatActivity implements Navigatio
             }) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<>();
-                    headers.put("Accept", "application/json");
-                    headers.put("X-BetaSeries-Key", API_KEY);
-                    headers.put("Authorization", API_TOKEN);
-                    headers.put("X-BetaSeries-Version", "3.0");
-                    return headers;
+                    return UtilsGlobal.getHeaders();
                 }
         };
         SingletonRequestAPI.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
 
     private void startRequestToAPI() {
-        String url = ENDPOINT + "/shows/display?id=" + serie.getId();
+        String url = Constantes.ENDPOINT + "/shows/display?id=" + serie.getId();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
             (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                 @Override
@@ -198,12 +189,7 @@ public class DetailsSerieActivity extends AppCompatActivity implements Navigatio
             }) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("Accept", "application/json");
-                headers.put("X-BetaSeries-Key", API_KEY);
-                headers.put("Authorization", API_TOKEN);
-                headers.put("X-BetaSeries-Version", "3.0");
-                return headers;
+                    return UtilsGlobal.getHeaders();
                 }
         };
         SingletonRequestAPI.getInstance(this).addToRequestQueue(jsonObjectRequest);

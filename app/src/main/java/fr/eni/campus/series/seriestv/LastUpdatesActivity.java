@@ -80,6 +80,8 @@ public class LastUpdatesActivity extends AppCompatActivity implements Navigation
                 intent = new Intent(this,activityClass);
                 break;
             case R.id.connexion:
+                activityClass = LoginActivity.class;
+                intent = new Intent(this,activityClass);
                 break;
             case R.id.account:
                 activityClass = AccountActivity.class;

@@ -3,6 +3,9 @@
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#888888</color>
-    <color name="colorButtons">#fffcb2</color>
-    <color name="colorProgressAndRating">#fff666</color>
+    <color name="colorButtons">#FFFCB2</color>
+    <color name="colorRating">#FFF666</color>
+    <color name="colorProgressBar">#FFA500</color>
+    <color name="colorLoginFields">#FFA500</color>
+    <color name="colorLoginFieldsHints">#BBBBBB</color>
 </resources>

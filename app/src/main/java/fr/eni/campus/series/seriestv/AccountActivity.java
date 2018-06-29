@@ -80,6 +80,8 @@ public class AccountActivity extends AppCompatActivity implements NavigationView
                 intent = new Intent(this,activityClass);
                 break;
             case R.id.connexion:
+                activityClass = LoginActivity.class;
+                intent = new Intent(this,activityClass);
                 break;
             case R.id.account:
                 activityClass = this.getClass();

@@ -26,24 +26,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 
 import fr.eni.campus.series.seriestv.model.Episode;
 import fr.eni.campus.series.seriestv.model.Saison;
+import fr.eni.campus.series.seriestv.util.Constantes;
+import fr.eni.campus.series.seriestv.util.UtilsGlobal;
 
 
 public class DetailsSaisonActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private static final String ENDPOINT = "https://api.betaseries.com";
-    private static final String API_KEY = "54ec90b87704";
-    private static final String API_TOKEN = "Bearer f17e68d82c20";
-    private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
     private Saison saison;
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
@@ -105,7 +99,7 @@ public class DetailsSaisonActivity extends AppCompatActivity implements Navigati
     }
 
     private void startRequestToAPI() {
-        String url = ENDPOINT + "/shows/episodes?id=" + saison.getSerie().getId() + "&season=" + saison.getNumber();
+        String url = Constantes.ENDPOINT + "/shows/episodes?id=" + saison.getSerie().getId() + "&season=" + saison.getNumber();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
             (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                 @Override
@@ -116,7 +110,7 @@ public class DetailsSaisonActivity extends AppCompatActivity implements Navigati
                         for(int i = 0; i < episodes.length(); ++i) {
                             saison.getEpisodes().get(i).setNumber(episodes.getJSONObject(i).getInt("episode"));
                             saison.getEpisodes().get(i).setTitle(episodes.getJSONObject(i).getString("title"));
-                            saison.getEpisodes().get(i).setSortieDate(format.parse(episodes.getJSONObject(i).getString("date")));
+                            saison.getEpisodes().get(i).setSortieDate(Constantes.format.parse(episodes.getJSONObject(i).getString("date")));
                             saison.getEpisodes().get(i).setSaison(saison);
                         }
                         Collections.sort(saison.getEpisodes(), new Comparator<Episode>() {
@@ -147,12 +141,7 @@ public class DetailsSaisonActivity extends AppCompatActivity implements Navigati
             }) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<>();
-                    headers.put("Accept", "application/json");
-                    headers.put("X-BetaSeries-Key", API_KEY);
-                    headers.put("Authorization", API_TOKEN);
-                    headers.put("X-BetaSeries-Version", "3.0");
-                    return headers;
+                    return UtilsGlobal.getHeaders();
                 }
             };
         SingletonRequestAPI.getInstance(this).addToRequestQueue(jsonObjectRequest);

@@ -14,12 +14,17 @@
         <item android:id="@+id/connexion"
             android:icon="@drawable/ic_connect"
             android:title="@string/connexion">
-
+        </item>
+        <item android:id="@+id/logout"
+            android:icon="@drawable/ic_logout"
+            android:title="@string/logout"
+            android:visible="false">
         </item>
     </group>
 
     <group android:id="@+id/groupUserInfos"
-        android:checkableBehavior="single">
+        android:checkableBehavior="single"
+        android:visible="false">
         <item android:id="@+id/account"
             android:icon="@drawable/ic_user"
             android:title="@string/account">
@@ -33,7 +38,6 @@
         <item android:id="@+id/favorites"
             android:icon="@drawable/ic_favorites"
             android:title="@string/favorites">
-
         </item>
     </group>
 

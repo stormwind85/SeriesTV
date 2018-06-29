@@ -68,7 +68,7 @@
                     android:stepSize="0.1"
                     android:layout_marginTop="5dp"
                     android:layout_marginRight="5dp"
-                    android:theme="@style/RatingAndProgressBar"
+                    android:theme="@style/Rating"
                     app:layout_constraintRight_toLeftOf="@id/note"
                     app:layout_constraintTop_toBottomOf="@id/banner" />
 

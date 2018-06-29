@@ -19,24 +19,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.support.design.widget.NavigationView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.Cache;
-import com.android.volley.Network;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +39,11 @@ import fr.eni.campus.series.seriestv.model.Episode;
 import fr.eni.campus.series.seriestv.model.Saison;
 import fr.eni.campus.series.seriestv.model.Serie;
 import fr.eni.campus.series.seriestv.model.Status;
+import fr.eni.campus.series.seriestv.util.Constantes;
+import fr.eni.campus.series.seriestv.util.UtilsGlobal;
+import fr.eni.campus.series.seriestv.util.UtilsLogin;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private static final String ENDPOINT = "https://api.betaseries.com";
-    private static final String API_KEY = "54ec90b87704";
-    private static final String API_TOKEN = "Bearer f17e68d82c20";
-    private static final int TOTAL_LIMIT_SERIES = 100;
-
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
     private NavigationView navigationView;
@@ -68,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         enableLeftMenu();
         setNavigationViewListener();
         initRecycler();
-        initQueue();
+        UtilsGlobal.initQueue(getCacheDir());
         startRequestToAPI();
     }
 
@@ -93,6 +85,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         );
         navigationView.setCheckedItem(R.id.home2);
+        if(UtilsLogin.isUserLoggedIn(this)){
+            MenuItem login = findViewById(R.id.connexion);
+            MenuItem logout = findViewById(R.id.logout);
+            MenuItem userInfos = findViewById(R.id.groupUserInfos);
+
+            login.setVisible(false);
+            logout.setVisible(true);
+            userInfos.setVisible(true);
+        }
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
@@ -111,21 +112,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         recyclerView.setLayoutManager(layoutManager);
     }
 
-    private void initQueue() {
-        // Instantiate the RequestQueue.
-        RequestQueue mRequestQueue;
-        // Instantiate the cache
-        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
-        // Set up the network to use HttpURLConnection as the HTTP client.
-        Network network = new BasicNetwork(new HurlStack());
-        // Instantiate the RequestQueue with the cache and network.
-        mRequestQueue = new RequestQueue(cache, network);
-        // Start the queue
-        mRequestQueue.start();
-    }
-
     private void startRequestToAPI() {
-        String url = ENDPOINT + "/shows/list?order=followers&limit=" + TOTAL_LIMIT_SERIES;
+        String url = Constantes.ENDPOINT + "/shows/list?order=followers&limit=" + Constantes.TOTAL_LIMIT_SERIES;
         series = new LinkedList<>();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
             (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -180,12 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("Accept", "application/json");
-                headers.put("X-BetaSeries-Key", API_KEY);
-                headers.put("Authorization", API_TOKEN);
-                headers.put("X-BetaSeries-Version", "3.0");
-                return headers;
+                return UtilsGlobal.getHeaders();
             }
         };
         // Access the RequestQueue through your singleton class.
@@ -207,12 +190,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int itemId = item.getItemId();
         Intent intent = null;
         Class activityClass = null;
+        boolean logOut = false;
 
         switch (itemId){
             case R.id.home2:
                 activityClass = this.getClass();
                 break;
             case R.id.connexion:
+                activityClass = LoginActivity.class;
+                intent = new Intent(this,activityClass);
+                break;
+            case R.id.logout:
+                activityClass = this.getClass();
+                UtilsLogin.logout(this);
+                Toast.makeText(this, getResources().getString(R.string.userLoggedOut),Toast.LENGTH_LONG);
+                logOut = true;
                 break;
             case R.id.account:
                 activityClass = AccountActivity.class;
@@ -234,6 +226,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intent);
 
         drawerLayout.closeDrawer(GravityCompat.START);
+
+        if(logOut)
+            enableLeftMenu();
+
         return true;
     }
 

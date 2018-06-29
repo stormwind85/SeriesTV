@@ -26,4 +26,6 @@
     <string name="error_invalid_password">Mot de pass trop court</string>
     <string name="error_incorrect_password">Mot de passe incorrect</string>
     <string name="error_field_required">Champ requis</string>
+    <string name="logout">Se Déconnecter</string>
+    <string name="userLoggedOut">Vous avez bien été déconnecté.</string>
 </resources>

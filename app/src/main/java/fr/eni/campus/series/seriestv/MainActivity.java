@@ -2,6 +2,7 @@ package fr.eni.campus.series.seriestv;
 
 import android.app.SearchManager;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.support.design.widget.NavigationView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
@@ -46,6 +48,8 @@ import fr.eni.campus.series.seriestv.model.Saison;
 import fr.eni.campus.series.seriestv.model.Serie;
 import fr.eni.campus.series.seriestv.model.Status;
 import fr.eni.campus.series.seriestv.util.Constantes;
+import fr.eni.campus.series.seriestv.util.UtilsGlobal;
+import fr.eni.campus.series.seriestv.util.UtilsLogin;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static int TOTAL_LIMIT_SERIES = 100;
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         enableLeftMenu();
         setNavigationViewListener();
         initRecycler();
-        initQueue();
+        UtilsGlobal.initQueue(getCacheDir());
         startRequestToAPI();
     }
 
@@ -91,6 +95,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         );
         navigationView.setCheckedItem(R.id.home2);
+        if(UtilsLogin.isUserLoggedIn(this)){
+            MenuItem login = findViewById(R.id.connexion);
+            MenuItem logout = findViewById(R.id.logout);
+            MenuItem userInfos = findViewById(R.id.groupUserInfos);
+
+            login.setVisible(false);
+            logout.setVisible(true);
+            userInfos.setVisible(true);
+        }
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
@@ -107,19 +120,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation()));
         recyclerView.setLayoutManager(layoutManager);
-    }
-
-    private void initQueue() {
-        // Instantiate the RequestQueue.
-        RequestQueue mRequestQueue;
-        // Instantiate the cache
-        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
-        // Set up the network to use HttpURLConnection as the HTTP client.
-        Network network = new BasicNetwork(new HurlStack());
-        // Instantiate the RequestQueue with the cache and network.
-        mRequestQueue = new RequestQueue(cache, network);
-        // Start the queue
-        mRequestQueue.start();
     }
 
     private void startRequestToAPI() {
@@ -172,12 +172,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Accept", "application/json");
-                headers.put("X-BetaSeries-Key", Constantes.API_KEY);
-                headers.put("Authorization", Constantes.API_TOKEN);
-                headers.put("X-BetaSeries-Version", "3.0");
-                return headers;
+                return UtilsGlobal.getHeaders();
             }
         };
         // Access the RequestQueue through your singleton class.
@@ -199,12 +194,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int itemId = item.getItemId();
         Intent intent = null;
         Class activityClass = null;
+        boolean logOut = false;
 
         switch (itemId){
             case R.id.home2:
                 activityClass = this.getClass();
                 break;
             case R.id.connexion:
+                activityClass = LoginActivity.class;
+                intent = new Intent(this,activityClass);
+                break;
+            case R.id.logout:
+                activityClass = this.getClass();
+                UtilsLogin.logout(this);
+                Toast.makeText(this, getResources().getString(R.string.userLoggedOut),Toast.LENGTH_LONG);
+                logOut = true;
                 break;
             case R.id.account:
                 activityClass = AccountActivity.class;
@@ -226,6 +230,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intent);
 
         drawerLayout.closeDrawer(GravityCompat.START);
+
+        if(logOut)
+            enableLeftMenu();
+
         return true;
     }
 

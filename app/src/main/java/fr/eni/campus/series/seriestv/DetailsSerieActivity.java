@@ -1,7 +1,9 @@
 package fr.eni.campus.series.seriestv;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +17,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -31,7 +34,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import fr.eni.campus.series.seriestv.model.Saison;
 import fr.eni.campus.series.seriestv.model.Serie;
@@ -49,10 +55,12 @@ public class DetailsSerieActivity extends AppCompatActivity implements Navigatio
     private RatingBar ratingBar;
     private TextView textNote;
     private TextView textDescription;
+    private TextView textTrailer;
     private RecyclerView recyclerView;
     private LinearLayoutManager layoutManager;
 
     private String imageForDetails;
+    private String trailer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +83,7 @@ public class DetailsSerieActivity extends AppCompatActivity implements Navigatio
         ratingBar = findViewById(R.id.rating);
         textNote = findViewById(R.id.note);
         textDescription = findViewById(R.id.description);
+        textTrailer = findViewById(R.id.trailer);
         recyclerView = findViewById(R.id.listSaisons);
     }
 
@@ -108,6 +117,50 @@ public class DetailsSerieActivity extends AppCompatActivity implements Navigatio
         recyclerView.setLayoutManager(layoutManager);
     }
 
+    public void showTrailer(View view) {
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + trailer.split("\\?v=")[1]));
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(trailer));
+        try {
+            startActivity(appIntent);
+        } catch (ActivityNotFoundException ex) {
+            startActivity(webIntent);
+        }
+    }
+
+    private void getTrailer() {
+        String url = Constantes.ENDPOINT + "/shows/videos?id=" + serie.getId();
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray videos = response.getJSONArray("videos");
+                            List<String> trailers = new LinkedList<>();
+                            for(int i = 0; i < videos.length(); ++i) {
+                                if(videos.getJSONObject(i).getString("type").equals("trailer")) {
+                                    trailers.add(videos.getJSONObject(i).getString("youtube_url"));
+                                }
+                            }
+                            trailer = trailers.get(new Random().nextInt(trailers.size()));
+                            textTrailer.setText("Regarder ici un trailer de la série");
+                        } catch (JSONException e) {
+                            Log.e("JSONException", e.getMessage());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("Volley", error.getMessage());
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return UtilsGlobal.getHeaders();
+            }
+        };
+        SingletonRequestAPI.getInstance(this).addToRequestQueue(jsonObjectRequest);
+    }
+
     private void getImageForDetails() {
         String url = Constantes.ENDPOINT + "/shows/pictures?id=" + serie.getId();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -132,8 +185,8 @@ public class DetailsSerieActivity extends AppCompatActivity implements Navigatio
                             }
                         }));
                     } catch (JSONException e) {
-                    Log.e("JSONException", e.getMessage());
-                }
+                        Log.e("JSONException", e.getMessage());
+                    }
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -176,6 +229,7 @@ public class DetailsSerieActivity extends AppCompatActivity implements Navigatio
                         textDescription.setText(show.getString("description"));
 
                         initRecycler();
+                        getTrailer();
                         getImageForDetails();
                     } catch (JSONException e) {
                         Log.e("JSONException", e.getMessage());

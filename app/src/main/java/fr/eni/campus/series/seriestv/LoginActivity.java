@@ -353,7 +353,7 @@ public class LoginActivity extends AppCompatActivity implements NavigationView.O
 
     private boolean login(final String email, final String password) {
         if (!UtilsLogin.isUserLoggedIn(this)) {
-            String url = Constantes.ENDPOINT + "/auth?login=" + email + "&password=" + UtilsLogin.hashPassword(password);
+            String url = Constantes.ENDPOINT + "/members/auth?login=" + email + "&password=" + UtilsLogin.hashPassword(password);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
